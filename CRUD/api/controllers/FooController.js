@@ -1,19 +1,3 @@
-/**
- * FooController
- *
- * @module      :: Controller
- * @description	:: A set of functions called `actions`.
- *
- *                 Actions contain code telling Sails how to respond to a certain type of request.
- *                 (i.e. do stuff, then send some JSON, show an HTML page, or redirect to another URL)
- *
- *                 You can configure the blueprint URLs which trigger these actions (`config/controllers.js`)
- *                 and/or override them with custom routes (`config/routes.js`)
- *
- *                 NOTE: The code you write here supports both HTTP and Socket.io automatically.
- *
- * @docs        :: http://sailsjs.org/#!documentation/controllers
- */
 
 module.exports = {
   
@@ -52,6 +36,41 @@ module.exports = {
             res.view({
                 users: foo
             });
+        });
+    },
+    edit : function (req, res, next){
+        Foo.findOne(req.param('id'),function foundFoo(err, foo){
+            if(err) return next(err);
+            if(!foo) return next();
+
+            res.view({
+                user:foo
+            });
+        });
+    },
+    update : function (req, res, next){
+        Foo.update(req.param('id'), req.params.all(), function FooUpdate(err){
+            if(err){
+                return res.redirect('/foo/edit/' + req.param('id'));
+            }
+
+            res.redirect('/foo/show/' + req.param('id'));
+
+        });
+    },
+    destroy: function(req, res, next){
+        Foo.findOne(req.param('id'), function foundUser(err,foo){
+
+            if(err) return next(err);
+            if(!foo) return next('No se encuentra ese usuario');
+
+
+            Foo.destroy(req.param('id'),function FooDestroy(err){
+                if(err) return next(err);
+            });
+
+            res.redirect('/foo');
+
         });
     }
 };
